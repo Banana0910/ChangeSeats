@@ -9,8 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 
-using System.Text.Json;
-
 namespace ChangeSeats
 {
     public partial class Seats : Form
@@ -19,6 +17,8 @@ namespace ChangeSeats
         {
             InitializeComponent();
         }
+
+        int selected_index = -1;
 
         private class Data {
             public string[] seat { get; set; }
@@ -41,7 +41,28 @@ namespace ChangeSeats
             s.Tag = new Point(e.X, e.Y);
         }          
 
-
+        private void seat_click(object sender, EventArgs e) {
+            if (selected_index != -1) {
+                string target1 = seats_panel.Controls[selected_index].Text;
+                string target2 = ((Seat)sender).Text;
+                DialogResult d = MessageBox.Show($"{target1}님과 {target2}님의 자리를 바꾸시겠습니까? ");
+                if (d == DialogResult.OK) {
+                    string temp = target1;
+                    seats_panel.Controls[selected_index].Text = target2;
+                    ((Seat)sender).Text = temp;
+                }
+            } else {
+                if (selected_index == seats_panel.Controls.IndexOf(((Seat)sender))) {
+                    ((Seat)sender).BorderSize = 1;
+                    ((Seat)sender).BorderColor = Color.Black;
+                    selected_index = -1;
+                } else {
+                    ((Seat)sender).BorderSize = 3;
+                    ((Seat)sender).BorderColor = Color.Red;
+                    selected_index = seats_panel.Controls.IndexOf(((Seat)sender));
+                }
+            }
+        }
 
         private void seats_count_TextChanged(object sender, EventArgs e)
         {
@@ -63,6 +84,7 @@ namespace ChangeSeats
                     ForeColor = Color.Black,
                     TabStop = false,
                 };
+                seat.Click += seat_click;
                 seats_panel.Controls.Add(seat);
             }
         }
